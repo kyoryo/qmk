@@ -196,7 +196,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------+-------+--------+--------+--------+------|                   |--------+-------+--------+--------+--------+---------|
   _______,  KC_NO,  KC_MS_L, KC_MS_D, KC_MS_R, KC_WH_D,                    KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT,KC_NO,   _______,
   //|------+-------+--------+--------+--------+------|  ===  |   |  ===  |--------+-------+--------+--------+--------+---------|
-  _______,  KC_NO,  KC_NO,   KC_NO,   KC_NO,   KC_PGDN,_______,    _______,KC_MPRV,  KC_MNXT,KC_MUTE, KC_VOLD,KC_VOLU, _______,
+  _______,  KC_NO,  KC_NO,   KC_COPY, KC_PASTE,KC_NO,_______,    _______,KC_MPRV,  KC_MNXT,KC_MUTE, KC_VOLD,KC_VOLU, _______,
   //|------+-------+--------+--------+--------+------|  ===  |   |  ===  |--------+-------+--------+--------+--------+---------|
                  _______, _______, _______, _______, _______,     _______, _______, _______, _______, _______
   //            \--------+--------+--------+---------+-------|   |--------+---------+--------+---------+-------/
@@ -446,7 +446,7 @@ static void print_status_narrow(void) {
             oled_write_P(PSTR("Lower"), false);
             break;
         case _ADJUST:
-            oled_write_P(PSTR("Adj\n"), false);
+            oled_write_P(PSTR("Adj"), false);
             break;
         case _NUMPAD:
             oled_write_P(PSTR("Nump\n"), false);
