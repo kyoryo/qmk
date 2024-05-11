@@ -14,4 +14,6 @@ LTO_ENABLE = yes
 OLED_ENABLE = yes
 # enable via support, only 4 layers applicable
 VIA_ENABLED = no
+# enable key override
+KEY_OVERRIDE_ENABLE = no
 
