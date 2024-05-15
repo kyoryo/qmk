@@ -82,7 +82,10 @@ enum custom_keycodes {
     KC_LOWER,
     KC_RAISE,
     KC_ADJUST,
-    KC_D_MUTE
+    KC_D_MUTE,
+    KC_SELECT_ALL,
+    KC_REDO,
+    KC_SWITCH_OS
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -108,11 +111,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------+-------+--------+--------+--------+------|                   |--------+-------+--------+--------+--------+---------|
   LT(_NUMPAD,KC_TAB),KC_Q,KC_W,KC_E,  KC_R,    KC_T,                      KC_Y,    KC_U,   KC_I,    KC_O,    KC_P,    KC_BSPC,
   //|------+-------+--------+--------+--------+------|                   |--------+-------+--------+--------+--------+---------|
-  MT(MOD_LCTL,KC_ESC),KC_A,KC_S,KC_D,  KC_F,    KC_G,                      KC_H,    KC_J,   KC_K,    KC_L,    KC_SCLN, KC_QUOT,
+  MT(MOD_LCTL,KC_ESC),KC_A,KC_S,KC_D, KC_F,    KC_G,                      KC_H,    KC_J,   KC_K,    KC_L,    KC_SCLN, KC_QUOT,
   //|------+-------+--------+--------+--------+------|  ===  |   |  ===  |--------+-------+--------+--------+--------+---------|
   KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,  KC_MUTE,  KC_D_MUTE,KC_N,    KC_M,   KC_COMM, KC_DOT,  KC_SLSH, KC_LSFT,
   //|------+-------+--------+--------+--------+------|  ===  |   |  ===  |--------+-------+--------+--------+--------+---------|
-                 KC_LALT, KC_BSPC, KC_LGUI, KC_ENT,  KC_LOWER,     KC_RAISE, KC_SPC,  MT(MOD_LGUI,KC_BSPC), KC_RCTL, KC_RALT
+            KC_LALT, KC_BSPC, KC_LGUI,LSFT_T(KC_ENT),KC_LOWER,     KC_RAISE, KC_SPC,  MT(MOD_LGUI,KC_BSPC), KC_RCTL, KC_RALT
   //            \--------+--------+--------+---------+-------|   |--------+---------+--------+---------+-------/
 ),
 
@@ -272,11 +275,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 [_NUMPAD] = LAYOUT(
   //,------------------------------------------------.                    ,---------------------------------------------------.
-  _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   _______, KC_NUM,  XXXXXXX, XXXXXXX,XXXXXXX, XXXXXXX,
+  _______, KC_SWITCH_OS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   _______, KC_NUM,  XXXXXXX, XXXXXXX,XXXXXXX, XXXXXXX,
   //|------+-------+--------+--------+--------+------|                   |--------+-------+--------+--------+--------+---------|
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   KC_CIRC, KC_P7,  KC_P8,   KC_P9,   KC_ASTR, XXXXXXX,
+  XXXXXXX, KC_SELECT_ALL, XXXXXXX, XXXXXXX, KC_REDO, XXXXXXX,                   KC_CIRC, KC_P7,  KC_P8,   KC_P9,   KC_ASTR, XXXXXXX,
   //|------+-------+--------+--------+--------+------|                   |--------+-------+--------+--------+--------+---------|
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   KC_MINS, KC_P4,  KC_P5,   KC_P6,   KC_EQL,  KC_PIPE,
+  XXXXXXX, KC_UNDO, KC_CUT, KC_COPY, KC_PASTE, XXXXXXX,                   KC_MINS, KC_P4,  KC_P5,   KC_P6,   KC_EQL,  KC_PIPE,
   //|------+-------+--------+--------+--------+------|  ===  |   |  ===  |--------+-------+--------+--------+--------+---------|
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,_______,   _______,KC_PLUS, KC_P1,  KC_P2,   KC_P3,   KC_SLSH, _______,
   //|------+-------+--------+--------+--------+------|  ===  |   |  ===  |--------+-------+--------+--------+--------+---------|
@@ -435,15 +438,23 @@ static void render_logo(void) {
      oled_write_raw_P(image, sizeof(image));
  }
 
+static bool isMac = false;
+/* 32 * 14 os logos */
+static const char PROGMEM windows_logo[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xbc, 0xbc, 0xbe, 0xbe, 0x00, 0xbe, 0xbe, 0xbf, 0xbf, 0xbf, 0xbf, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x07, 0x0f, 0x0f, 0x00, 0x0f, 0x0f, 0x1f, 0x1f, 0x1f, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+static const char PROGMEM mac_logo[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xf0, 0xf8, 0xf8, 0xf8, 0xf0, 0xf6, 0xfb, 0xfb, 0x38, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x0f, 0x1f, 0x1f, 0x0f, 0x0f, 0x1f, 0x1f, 0x0f, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
  static void print_status_narrow(void) {
      // Print current mode
-     oled_write_P(PSTR("\n\n"), false);
-     oled_write_ln_P(PSTR("8=D"), false);
+    oled_set_cursor(0, 0);
+    // print icon here, 32x14
+    if (isMac) {
+        oled_write_raw_P(mac_logo, sizeof(mac_logo));
+    } else {
+        oled_write_raw_P(windows_logo, sizeof(windows_logo));
+    }
 
-     oled_write_ln_P(PSTR(""), false);
-
-     //snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Undef-%ld", layer_state)
-
+    oled_set_cursor(0, 3);
      switch (get_highest_layer(default_layer_state)) {
          case _QWERTY:
              oled_write_ln_P(PSTR("Qwrt"), false);
@@ -458,9 +469,10 @@ static void render_logo(void) {
         default:
             oled_write_ln_P(PSTR("Undef"), false);
     }
-    oled_write_P(PSTR("\n\n"), false);
     // Print current layer
+    oled_set_cursor(0, 5);
     oled_write_ln_P(PSTR("LAYER"), false);
+    oled_set_cursor(0, 6);
     switch (get_highest_layer(layer_state)) {
         case _GAMING:
         case _QWERTY:
@@ -485,6 +497,7 @@ static void render_logo(void) {
         default:
             oled_write_ln_P(PSTR("Undef"), false);
     }
+    // oled_set_cursor(0, 8);
 }
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
@@ -555,6 +568,127 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 unregister_mods(mod_config(MOD_MEH));
                 unregister_code(KC_UP);
             }
+        case KC_COPY:
+             if (isMac) {
+                 if (record->event.pressed) {
+                     register_mods(mod_config(MOD_LGUI));
+                     register_code(KC_C);
+                 } else {
+                     unregister_mods(mod_config(MOD_LGUI));
+                     unregister_code(KC_C);
+                 }
+             } else {
+                 if (record->event.pressed) {
+                     register_mods(mod_config(MOD_LCTL));
+                     register_code(KC_C);
+                 } else {
+                     unregister_mods(mod_config(MOD_LCTL));
+                     unregister_code(KC_C);
+                 }
+             }
+            return false;
+        case KC_PASTE:
+             if (isMac) {
+                if (record->event.pressed) {
+                    register_mods(mod_config(MOD_LGUI));
+                    register_code(KC_V);
+                } else {
+                    unregister_mods(mod_config(MOD_LGUI));
+                    unregister_code(KC_V);
+                }
+             } else {
+                 if (record->event.pressed) {
+                     register_mods(mod_config(MOD_LCTL));
+                     register_code(KC_V);
+                 } else {
+                     unregister_mods(mod_config(MOD_LCTL));
+                     unregister_code(KC_V);
+                 }
+            return false;
+             }
+        case KC_CUT:
+            if (isMac) {
+                if (record->event.pressed) {
+                    register_mods(mod_config(MOD_LGUI));
+                    register_code(KC_X);
+                } else {
+                    unregister_mods(mod_config(MOD_LGUI));
+                    unregister_code(KC_X);
+                }
+            } else {
+                if (record->event.pressed) {
+                    register_mods(mod_config(MOD_LCTL));
+                    register_code(KC_X);
+                } else {
+                    unregister_mods(mod_config(MOD_LCTL));
+                    unregister_code(KC_X);
+                }
+            }
+            return false;
+        case KC_UNDO:
+            if (isMac) {
+                if (record->event.pressed) {
+                    register_mods(mod_config(MOD_LGUI));
+                    register_code(KC_Z);
+                } else {
+                    unregister_mods(mod_config(MOD_LGUI));
+                    unregister_code(KC_Z);
+                }
+            } else {
+                if (record->event.pressed) {
+                    register_mods(mod_config(MOD_LCTL));
+                    register_code(KC_Z);
+                } else {
+                    unregister_mods(mod_config(MOD_LCTL));
+                    unregister_code(KC_Z);
+                }
+            }
+            return false;
+        case KC_REDO:
+            if (isMac) {
+                if (record->event.pressed) {
+                    register_mods(mod_config(MOD_LGUI));
+                    register_mods(mod_config(MOD_LSFT));
+                    register_code(KC_Z);
+                } else {
+                    unregister_mods(mod_config(MOD_LGUI));
+                    register_mods(mod_config(MOD_LSFT));
+                    unregister_code(KC_Z);
+                }
+            } else {
+                if (record->event.pressed) {
+                    register_mods(mod_config(MOD_LCTL));
+                    register_code(KC_Y);
+                } else {
+                    unregister_mods(mod_config(MOD_LCTL));
+                    unregister_code(KC_Y);
+                }
+            }
+            return false;
+        case KC_SELECT_ALL:
+            if (isMac) {
+                if (record->event.pressed) {
+                    register_mods(mod_config(MOD_LGUI));
+                    register_code(KC_A);
+                } else {
+                    unregister_mods(mod_config(MOD_LGUI));
+                    unregister_code(KC_A);
+                }
+            } else {
+                if (record->event.pressed) {
+                    register_mods(mod_config(MOD_LCTL));
+                    register_code(KC_A);
+                } else {
+                    unregister_mods(mod_config(MOD_LCTL));
+                    unregister_code(KC_A);
+                }
+            }
+            return false;
+        case KC_SWITCH_OS:
+            if (record->event.pressed) {
+                 isMac = !isMac;
+            }
+            return false;
     }
     return true;
 }
